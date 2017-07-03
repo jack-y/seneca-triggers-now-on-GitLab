@@ -62,7 +62,8 @@ seneca.use('seneca-triggers', {
 The triggers array contains a list of **Trigger objects**.
 As usual, the declaration of this list can be retrieved from a configuration file or directly written in the code.
 
-![](https://github.com/jack-y/seneca-triggers/tree/master/media/caution.png)**Caution: the triggers order is significant!**
+**/!\ Caution: the triggers order is significant!**
+
 As this plugin use pattern overrides, please remember: in the same way that the order of plugin definition is significant, the order of pattern overrides is also [significant][].
 
 ### Trigger object
@@ -159,6 +160,149 @@ That's all. Enjoy it!
 
 # The *'hello World'* example
 
+This (*very*) simple test shows the interaction between a *before* trigger, an *after* trigger and the prior action:
+
+- If the *before* trigger is set, the output and the result of the prior action changes.
+- If the *after* trigger is set, its action output displays the prior action result.
+
+## Configuration
+
+Here is the triggers configuration for this test:
+
+```js
+config.triggers = [
+  {
+    pattern: 'role:test,cmd:helloworld',
+    resultname: 'priorResult',
+    before: {
+      pattern: 'role:test,cmd:setname',
+      options: {
+        name: 'Jack'
+      },
+      resultname: 'Set name'
+    },
+    after: {
+      pattern: 'role:test,cmd:question',
+      options: {
+        question: 'How are you?'
+      }
+    }
+  }
+]
+```
+
+The *before* trigger adds its result to the end result, with the key `Set name`.
+The *after* trigger leaves the end result unchanged.
+
+## Actions
+
+### The prior action
+
+Declaration:
+
+```js
+seneca.add({role: 'test', cmd: 'helloworld'}, helloWorld)
+```
+
+Action:
+
+```js
+function helloWorld (args, done) {
+  var name = args['Set name'] ? args['Set name'].name : 'World'
+  var text = 'Hello ' + name + '!'
+  console.log(text)
+  done(null, {msg: text})
+}
+```
+
+As usual, its output is:
+
+	Hello World!
+
+### The *before* trigger
+
+Declaration:
+
+```js
+seneca.add({role: 'test', cmd: 'setname'}, setName)
+```
+
+Action:
+
+```js
+function setName (args, done) {
+  console.log('> First of all, my name is ' + args.name + '.')
+  done(null, {name: args.name})
+}
+```
+
+Its configuration contains a `name` property. For example: `name: 'Jack'`. Depending on this property, its output is:
+
+	> First of all, my name is Jack.
+
+Then, the name value is passed as argument to the prior message. The prior action retrieves this name value. The prior output changes accordingly:
+
+	Hello Jack!
+
+### The *after* trigger
+
+Declaration:
+
+```js
+seneca.add({role: 'test', cmd: 'question'}, question)
+```
+
+Action:
+
+```js
+function question (args, done) {
+  console.log('# You said: "' + args.priorResult.msg + '".')
+  console.log('# ' + args.question)
+  done(null, {question: args.question})
+}
+```
+
+As set, the prior result has been saved in the `priorResult` argument. Depending on this argument, the trigger output is:
+
+	# You said: "Hello World!".
+	# How are you?
+
+And if the *before* trigger is also set, it becomes:
+
+	# You said: "Hello Jack!".
+	# How are you?
+
+### The end result
+
+The prior end result is:
+
+```js
+{"msg":"Hello World!"}
+```
+
+If the *before* trigger is set, the end result changes:
+
+```js
+{"msg":"Hello Jack!","Set name":{"name":"Jack"}}
+```
+
+## Run the tests
+
+The `test` directory contains the full *hello World* sources. The 4 scenarios can be tested:
+
+- no trigger
+- *before* trigger only
+- *after* trigger only
+- *before* and *after* triggers
+
+The outputs can be checked [here][].
+
+To run these tests:
+
+```sh
+node ./test/test-notrigger.js && node ./test/test-before.js && node ./test/test-after.js && node ./test/test-before-after.js
+```
+
 # Install
 
 To install, simply use npm:
@@ -196,3 +340,4 @@ Licensed under [MIT][].
 [entities]: http://senecajs.org/docs/tutorials/understanding-data-entities.html
 [trigerring]: https://en.wikipedia.org/wiki/Database_trigger
 [significant]: http://senecajs.org/docs/tutorials/understanding-prior-actions.html#add-order-is-significant-
+[here]: https://github.com/jack-y/seneca-triggers/blob/master/test/README.md

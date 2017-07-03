@@ -1,7 +1,7 @@
 ![Logo]
 > A [seneca.js][] triggers plugin.
 
-# seneca-triggers: HelloWorld tests
+# seneca-triggers: Hello World tests
 
 Last update: 07/03/2017
 
@@ -23,7 +23,7 @@ The console shows:
 
 This is the normal `helloWorld` action output.
 
-### Trigger-before only
+### *Before* trigger only
 
 The console shows:
 
@@ -32,15 +32,15 @@ The console shows:
 	Hello Jack!
 	Test OK. result = {"msg":"Hello Jack!","Set name":{"name":"Jack"}}
 
-Before calling the `helloWorld` action, the trigger-before is fired.
-It displays a message with a name from the configuration options.
+Before calling the `helloWorld` action, the *before* trigger is fired.
+It outputs a message with a name from the configuration options.
 
 Calling the `helloWorld` action, this name is retrieved.
 The `helloWorld` output is changed accordingly.
 
 The end result contains a new value: the name.
 
-### Trigger-after only
+### *After* trigger only
 
 The console shows:
 
@@ -50,13 +50,13 @@ The console shows:
 	# How are you?
 	Test OK. result = {"msg":"Hello World!"}
 
-After calling the `helloWorld` action, the trigger-after is fired.
+After calling the `helloWorld` action, the *after* trigger is fired.
 It retrieves the result of the prior `helloWorld` action.
-It displays a message accordingly.
+It outputs a message accordingly.
 
 The end result remains unchanged.
 
-### Trigger before and after
+### *Before* and *after* triggers
 
 The console shows:
 
@@ -67,15 +67,15 @@ The console shows:
 	# How are you?
 	Test OK. result = {"msg":"Hello Jack!","Set name":{"name":"Jack"}}
 
-Before calling the `helloWorld` action, the trigger-before is fired.
-It displays a message with a name from the configuration options.
+Before calling the `helloWorld` action, the *before* trigger is fired.
+It outputs a message with a name from the configuration options.
 
 Calling the `helloWorld` action, this name is retrieved.
 The `helloWorld` output is changed accordingly.
 
-After calling the `helloWorld` action, the trigger-after is fired.
+After calling the `helloWorld` action, the *after* trigger is fired.
 It retrieves the result of the prior `helloWorld` action.
-It displays a message accordingly.
+It outputs a message accordingly.
 
 The end result contains a new value: the name.
 

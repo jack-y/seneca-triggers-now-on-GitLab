@@ -2,10 +2,7 @@
 'use strict'
 
 exports.helloWorld = function (args, done) {
-  var name = 'World'
-  if (args['Set name']) {
-    name = args['Set name'].name
-  }
+  var name = args['Set name'] ? args['Set name'].name : 'World'
   var text = 'Hello ' + name + '!'
   console.log(text)
   done(null, {msg: text})
