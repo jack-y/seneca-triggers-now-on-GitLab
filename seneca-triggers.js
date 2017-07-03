@@ -26,7 +26,7 @@ module.exports = function (options) {
 
   /* --------------- FUNCTIONS --------------- */
 
-  /* Applies all trigers */
+  /* Applies all triggers */
   function applyTriggers (args, done) {
     // Gets the triggers array
     var triggers = args.triggers ? args.triggers : options.triggers
@@ -54,11 +54,11 @@ module.exports = function (options) {
       // Overrides the prior pattern
       seneca.add(aTrigger.pattern, function (msg, reply) {
         var senecaHere = this // Must be declared here for prior action.
-        applyTriggerBefore(aTrigger, msg)
+        runBeforeTrigger(aTrigger, msg)
         .then(function (beforeResult) {
           runPrior(senecaHere, msg)
           .then(function (priorResult) {
-            applyTriggerAfter(aTrigger, msg, priorResult)
+            runAfterTrigger(aTrigger, msg, priorResult)
             .then(function (priorResult) {
               if (beforeResult) {
                 // Adds the before-result to the prior result
@@ -76,25 +76,28 @@ module.exports = function (options) {
     })
   }
 
-  function applyTriggerBefore (aTrigger, msg) {
+  /* Runs the before-trigger action */
+  function runBeforeTrigger (aTrigger, msg) {
     return new Promise(function (resolve, reject) {
-      // Checks if there is a trigger-before
+      // Checks if there is a before-trigger
       if (aTrigger.before) {
-        // Fires the trigger-before
+        // Fires the before-trigger
         execTrigger(aTrigger.before, msg)
         .then(function (beforeResult) {
           // Adds the before-result to the prior message
-          // This result could be used by the prior command
+          // This result could be retrieved by the prior action
           addResults(aTrigger, beforeResult, null, msg)
           return resolve(beforeResult)
         })
         .catch(function (err) { return reject(err) })
       } else {
+        // No before-trigger
         return resolve(null)
       }
     })
   }
 
+  /* Runs the prior action */
   function runPrior (senecaHere, msg) {
     return new Promise(function (resolve, reject) {
       senecaHere.prior(msg, function (err, result) {
@@ -104,15 +107,16 @@ module.exports = function (options) {
     })
   }
 
-  function applyTriggerAfter (aTrigger, msg, priorResult) {
+  /* Runs the after-trigger action */
+  function runAfterTrigger (aTrigger, msg, priorResult) {
     return new Promise(function (resolve, reject) {
-      // Checks if there is a trigger-after
+      // Checks if there is a after-trigger
       if (aTrigger.after) {
         // Adds the prior result to the prior message
-        // This result could be used by the after-function
+        // This result could be retrieved by the after-action
         msg.options = msg.options ? msg.options : {}
-        msg.options['priorResult'] = priorResult
-        // Fires the trigger-after
+        msg.options[aTrigger.resultname] = priorResult
+        // Fires the after-trigger
         execTrigger(aTrigger.after, msg)
         .then(function (afterResult) {
           // Adds the after-result to the prior result
@@ -121,6 +125,7 @@ module.exports = function (options) {
         })
         .catch(function (err) { return reject(err) })
       } else {
+        // No after-trigger
         return resolve(priorResult)
       }
     })
@@ -138,11 +143,11 @@ module.exports = function (options) {
   }
 
   function addResults (aTrigger, resultBefore, resultAfter, result) {
-    if (aTrigger.before && aTrigger.before.result && resultBefore && result) {
-      result[aTrigger.before.name] = resultBefore
+    if (aTrigger.before && aTrigger.before.resultname && resultBefore && result) {
+      result[aTrigger.before.resultname] = resultBefore
     }
-    if (aTrigger.after && aTrigger.after.result && resultAfter && result) {
-      result[aTrigger.after.name] = resultAfter
+    if (aTrigger.after && aTrigger.after.resultname && resultAfter && result) {
+      result[aTrigger.after.resultname] = resultAfter
     }
   }
 

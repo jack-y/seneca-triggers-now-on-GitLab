@@ -4,13 +4,13 @@ var config = {}
 config.triggers = [
   {
     pattern: 'role:test,cmd:helloworld',
+    resultname: 'priorResult',
     before: {
-      name: 'Set name',
       pattern: 'role:test,cmd:setname',
       options: {
         name: 'Jack'
       },
-      result: true
+      resultname: 'Set name'
     }
   }
 ]

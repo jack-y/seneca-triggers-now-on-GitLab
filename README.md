@@ -7,14 +7,14 @@ Last update: 07/03/2017
 
 ## Description
 
-This module is a plugin for the [Seneca][] framework. It provides *before* and *after* triggers management for any command.
+This module is a plugin for the [Seneca][] framework. It provides *before* and *after* triggers management for any action.
 
 ## Why this plugin?
 
 Thanks to the [Seneca][] framework, which already provides a full **action pattern override** technique: [priors][].
 [Seneca][] plugins are fundamentally just a list of action [patterns][], and [patterns][] are *extensibles*. Then, your application can override [patterns][] with its own functionalities.
 
-This plugin makes things easier. You simply declare the triggers objects. Each trigger is intended to fire a command *before* and/or *after* the prior command. Then, you implement these *before/after* commands with their pattern in the target microservices. Done!
+This plugin makes things easier. You simply declare the triggers objects. Each trigger is intended to fire an action *before* and/or *after* the prior action. Then, you implement these *before/after* actions with their pattern in the target microservices. Done!
 
 ## Benefits
 
@@ -24,9 +24,9 @@ All the logic of the triggers is included in this plugin. Just set it up.
 
 ### Retrieving results
 
-The *before* command returns a result which can be retrieved by the prior command.
-The prior command returns a result which can be retrieved by the *after* command.
-The end result can include the *before* and/or *after* results in addition to the prior result.
+- The *before* action returns a result which can be retrieved by the prior action.
+- The prior action returns a result which can be retrieved by the *after* action.
+- The end result can include the *before* and/or *after* results in addition to the prior result.
 
 Enjoy it!
 
@@ -55,15 +55,15 @@ Your application must declare this plugin use:
 
 ```js
 seneca.use('seneca-triggers', {
-  ... triggers array ...
+  [ ... triggers array ... ]
 })
 ```
 
 The triggers array contains a list of **Trigger objects**.
 As usual, the declaration of this list can be retrieved from a configuration file or directly written in the code.
 
-**Caution: the triggers order significant!**
-As this plugin use pattern override, please remember: in the same way that the order of plugin definition is significant, the order of pattern overrides is also [significant][].
+![](https://github.com/jack-y/seneca-triggers/tree/master/media/caution.png)**Caution: the triggers order is significant!**
+As this plugin use pattern overrides, please remember: in the same way that the order of plugin definition is significant, the order of pattern overrides is also [significant][].
 
 ### Trigger object
 
@@ -71,33 +71,91 @@ The pattern is:
 
 ```js
 {
-  pattern: 'role:the_prior_role,cmd:the_prior_command',
+  pattern: 'role:the_prior_role,cmd:the_prior_command, ...',
+  resultname: 'prior_name',
   before: {
-    name: 'my_before_name',
-    pattern: 'role:the_before_pattern,cmd:the_before_command',
-      options: {
-        aName: aValue,
-        ...
+    pattern: 'role:the_before_pattern,cmd:the_before_command, ...',
+    options: {
+      aName: aValue,
+      ...
     },
-    result: true/false
+    resultname: 'my_before_name'
   },
   after: {
-    name: 'my_after_name',
-    pattern: 'role:the_after_pattern,cmd:the_after_command',
-      options: {
-        aName: aValue,
-        ...
+    pattern: 'role:the_after_pattern,cmd:the_after_command, ...',
+    options: {
+      aName: aValue,
+      ...
     },
-    result: true/false
+    resultname: 'my_after_name'
   },
 }
 ```
 
 - **pattern**: the prior pattern to be overriden.
-- **before**: the *before* trigger properties. See below.
-- **after**: the *after* trigger properties. See below
+- **resultname**: the name of the field containing the prior result in the out prior message. See the [Prior result](#prior-result) chapter below.
+- **before**: this field is optional. It contains the *before* trigger properties. See below.
+- **after**: this field is optional. It contains the *after* trigger properties. See below.
+
+### Trigger properties
+
+The pattern is:
+
+```js
+{
+  pattern: 'role:the_trigger_pattern,cmd:the_trigger_command,...',
+  options: {
+    aName: aValue,
+    ...
+  },
+  resultname: 'my_trigger_name'
+}
+```
+
+- **pattern**: the pattern of the action that will be fired.
+- **options**: this field is optional. If the trigger action needs additional data, they are declared in this object. This options object will be passed in the trigger action message.
+- **resultname**: this field is optional. If set, this trigger result is to be included in the end result. The trigger result property name in the end result object is this *resultname* value.
 
 ## Applying triggers
+
+After declaring triggers, they must be applied to benefit of the override feature. Please use this code in your main script:
+
+```js
+/* Please put your seneca.add() statements before these line. */
+/* Applies triggers */
+seneca.act({role: 'triggers', cmd: 'apply'}, (err, reply) => {
+  if (err) { ... }
+  /* Please put your main code here. */
+})
+/* Application end: seneca.close(...) */
+```
+
+This code must be inserted **immediatly after** all your `seneca.add()` statements. Remember: the pattern override order is significant.
+
+The main code of your script, including its own `seneca.act ()` statements, must be inserted into the triggers `seneca.act` function as shown.
+
+### Prior message
+
+The prior message is **always transmitted** to the trigger action.
+You can write the trigger action code using `args` retrieved from the prior message.
+
+If your trigger action need **additional data**, it can be set in the trigger options configuration: 
+
+```js
+  options: {
+    aName: aValue,
+    ...
+  }
+```
+
+### Prior result
+
+The prior action result is passed as argument in the `args` array of the *after* trigger message. So the *after* action can eventually retrieve and use it. 
+This argument name is declared in the trigger configuration, in the main field `resultname`.
+
+## And then...
+
+That's all. Enjoy it!
 
 # The *'hello World'* example
 
