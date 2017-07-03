@@ -60,10 +60,8 @@ seneca.use('seneca-triggers', {
 ```
 
 The triggers array contains a list of **Trigger objects**.
-As usual, the declaration of this list can be retrieved from a configuration file or directly written in the code.
 
 **/!\ Caution: the triggers order is significant!**
-
 As this plugin use pattern overrides, please remember: in the same way that the order of plugin definition is significant, the order of pattern overrides is also [significant][].
 
 ### Trigger object
@@ -115,7 +113,7 @@ The pattern is:
 
 - **pattern**: the pattern of the action that will be fired.
 - **options**: this field is optional. If the trigger action needs additional data, they are declared in this object. This options object will be passed in the trigger action message.
-- **resultname**: this field is optional. If set, this trigger result is to be included in the end result. The trigger result property name in the end result object is this *resultname* value.
+- **resultname**: this field is optional. If set, this trigger result is to be included in the end result. The trigger result key name in the end result object is this *resultname* value.
 
 ## Applying triggers
 
@@ -138,7 +136,7 @@ The main code of your script, including its own `seneca.act ()` statements, must
 ### Prior message
 
 The prior message is **always transmitted** to the trigger action.
-You can write the trigger action code using `args` retrieved from the prior message.
+The trigger action function can use `args` retrieved from the prior message.
 
 If your trigger action need **additional data**, it can be set in the trigger options configuration: 
 
@@ -152,7 +150,7 @@ If your trigger action need **additional data**, it can be set in the trigger op
 ### Prior result
 
 The prior action result is passed as argument in the `args` array of the *after* trigger message. So the *after* action can eventually retrieve and use it. 
-This argument name is declared in the trigger configuration, in the main field `resultname`.
+This argument name is set in the trigger configuration, in the main field `resultname`.
 
 ## And then...
 
@@ -236,7 +234,7 @@ function setName (args, done) {
 }
 ```
 
-Its configuration contains a `name` property. For example: `name: 'Jack'`. Depending on this property, its output is:
+The trigger configuration contains a `name` property. For example: `name: 'Jack'`. Depending on this property, its output is:
 
 	> First of all, my name is Jack.
 
