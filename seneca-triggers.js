@@ -114,8 +114,7 @@ module.exports = function (options) {
       if (aTrigger.after) {
         // Adds the prior result to the prior message
         // This result could be retrieved by the after-action
-        msg.options = msg.options ? msg.options : {}
-        msg.options[aTrigger.resultname] = priorResult
+        msg[aTrigger.resultname] = priorResult
         // Fires the after-trigger
         execTrigger(aTrigger.after, msg)
         .then(function (afterResult) {
@@ -133,9 +132,12 @@ module.exports = function (options) {
 
   function execTrigger (aTriggerObject, msg) {
     return new Promise(function (resolve, reject) {
+      // Adds trigger options to the message data
       var options = aTriggerObject.options ? aTriggerObject.options : {}
-      Object.assign(options, msg.options)
-      seneca.act(aTriggerObject.pattern, options, function (err, result) {
+      var data = seneca.util.clean(msg)
+      Object.assign(data, options)
+      // Action with message data (lower preference)
+      seneca.act(aTriggerObject.pattern, data, function (err, result) {
         if (err) { return reject(err) }
         return resolve(result)
       })

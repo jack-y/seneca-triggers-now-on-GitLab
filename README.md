@@ -3,7 +3,7 @@
 
 # seneca-triggers
 
-Last update: 07/03/2017
+Last update: 07/04/2017
 
 ## Description
 
@@ -73,7 +73,7 @@ The pattern is:
   pattern: 'role:the_prior_role,cmd:the_prior_command, ...',
   resultname: 'prior_name',
   before: {
-    pattern: 'role:the_before_pattern,cmd:the_before_command, ...',
+    pattern: 'role:the_before_role,cmd:the_before_command, ...',
     options: {
       aName: aValue,
       ...
@@ -81,7 +81,7 @@ The pattern is:
     resultname: 'my_before_name'
   },
   after: {
-    pattern: 'role:the_after_pattern,cmd:the_after_command, ...',
+    pattern: 'role:the_after_role,cmd:the_after_command, ...',
     options: {
       aName: aValue,
       ...
@@ -102,7 +102,7 @@ The pattern is:
 
 ```js
 {
-  pattern: 'role:the_trigger_pattern,cmd:the_trigger_command,...',
+  pattern: 'role:the_trigger_role,cmd:the_trigger_command,...',
   options: {
     aName: aValue,
     ...

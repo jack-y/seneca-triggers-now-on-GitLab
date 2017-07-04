@@ -29,7 +29,7 @@ seneca.ready(function (err) {
   act({role: 'triggers', cmd: 'apply'})
   .then(function (result) {
     /* Main: run tests */
-    act({role: 'test', cmd: 'helloworld'})
+    act({role: 'test', cmd: 'helloworld', owner: 'John Doo'})
     .then(function (result) {
       console.log('Test OK. result =', JSON.stringify(result))
     })
