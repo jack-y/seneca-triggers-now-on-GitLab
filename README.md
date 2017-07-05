@@ -24,10 +24,12 @@ All the logic of the triggers is included in this plugin. Just set it up.
 
 ### Process control
 
-The *before* action result must success, otherwise the process is stopped. The prior action is not fired and the *before* action result is returned. With this feature you can:
+**The *before* action** must succeed, otherwise **the process is stopped**. The prior action is not fired and the *before* action result is returned. With this feature you can:
 
 - prevent invalid transactions
 - enforce complex security authorizations
+
+**The prior action** must succeed, otherwise the **process is stopped**. The optional *after* trigger is not fired. The prior action result is returned.
 
 ### Retrieving results
 
@@ -172,7 +174,17 @@ If your trigger action need **additional data**, it can be set in the trigger op
 
 ### Prior result
 
-The prior action result is passed as argument in the `args` array of the *after* trigger message. So the *after* action can eventually retrieve and use it. 
+It's the **responsability of the prior action** to return a result with at least the property:
+
+```js
+{success: true/false}
+```
+
+Otherwise, the `success: true` value is used by default.
+
+If success is false, **the override process stops**. The optional *after* action is not fired. The end result is the prior result.
+
+**If succeed**, the prior action result is passed as argument in the `args` array of the *after* trigger message. So the *after* action can eventually retrieve and use it. 
 This argument name is set in the trigger configuration, in the main field `resultname`.
 
 ## And then...

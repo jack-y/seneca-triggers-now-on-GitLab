@@ -56,24 +56,30 @@ module.exports = function (options) {
         var senecaHere = this // Must be declared here for prior action.
         runBeforeTrigger(aTrigger, msg)
         .then(function (beforeResult) {
-          // Checks if before-trigger successes
+          // Checks if before-trigger succeed
           if (beforeResult.success) {
             runPrior(senecaHere, msg)
             .then(function (priorResult) {
-              runAfterTrigger(aTrigger, msg, priorResult)
-              .then(function (priorResult) {
-                if (beforeResult) {
-                  // Adds the before-result to the prior result
-                  addResults(aTrigger, beforeResult, null, priorResult)
-                }
-                // Final response
+              // Adds the before-result to the prior result
+              if (beforeResult) {
+                addResults(aTrigger, beforeResult, null, priorResult)
+              }
+              // Checks if prior action succeed
+              if (priorResult.success) {
+                runAfterTrigger(aTrigger, msg, priorResult)
+                .then(function (priorResult) {
+                  // Final response
+                  reply(null, priorResult)
+                })
+                .catch(function (err) { reply(err) })
+              } else {
+                // prior action unsucceed
                 reply(null, priorResult)
-              })
-              .catch(function (err) { reply(err) })
+              }
             })
             .catch(function (err) { reply(err) })
           } else {
-            // Before-trigger unsuccess
+            // Before-trigger unsucceed
             // Adds the trigger to the result before reply
             beforeResult.trigger = aTrigger.before
             reply(null, beforeResult)
@@ -114,6 +120,10 @@ module.exports = function (options) {
     return new Promise(function (resolve, reject) {
       senecaHere.prior(msg, function (err, result) {
         if (err) { return reject(err) }
+        // Checks if the result success property exists. Default = true.
+        if (!result.hasOwnProperty('success')) {
+          result.success = true
+        }
         return resolve(result)
       })
     })
