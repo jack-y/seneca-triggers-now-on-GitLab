@@ -3,7 +3,7 @@
 
 # seneca-triggers
 
-Last update: 07/04/2017
+Last update: 07/05/2017
 
 ## Description
 
@@ -22,6 +22,13 @@ This plugin makes things easier. You simply declare the triggers objects. Each t
 
 All the logic of the triggers is included in this plugin. Just set it up.
 
+### Process control
+
+The *before* action result must success, otherwise the process is stopped. The prior action is not fired and the *before* action result is returned. With this feature you can:
+
+- prevent invalid transactions
+- enforce complex security authorizations
+
 ### Retrieving results
 
 - The *before* action returns a result which can be retrieved by the prior action.
@@ -35,14 +42,14 @@ Enjoy it!
 Almost all database engines offer [trigerring][] capabilities. Similarly, you can implement this feature with Seneca [entities][]. And then:
 
 - automatically generate derived column values
-- prevent invalid transactions
-- enforce complex security authorizations
 - enforce referential integrity across nodes in a distributed environment
 - enforce complex business rules
 - provide transparent event logging
 - provide sophisticated auditing
 - maintain synchronous table replicates
 - gather statistics on table access
+- prevent invalid transactions
+- enforce complex security authorizations
 - ...
 
 ... and all the rest: we know that your imagination has no limit :)
@@ -132,6 +139,22 @@ seneca.act({role: 'triggers', cmd: 'apply'}, (err, reply) => {
 This code must be inserted **immediatly after** all your `seneca.add()` statements. Remember: the pattern override order is significant.
 
 The main code of your script, including its own `seneca.act ()` statements, must be inserted into the triggers `seneca.act` function as shown.
+
+### *Before* trigger result
+
+It's the **responsability of the `before` trigger** to return a result with at least the property:
+
+```js
+{success: true/false}
+```
+
+Otherwise, the `success: true` value is used by default.
+
+If success is false, **the override process stops**. The prior action is not fired. The end result is the *before* trigger result plus the property:
+
+```js
+trigger: { ... the before trigger object ... }
+```
 
 ### Prior message
 

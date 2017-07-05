@@ -1,6 +1,6 @@
 {
   "name": "seneca-triggers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Triggers on seneca actions",
   "keywords": [
     "node.js",

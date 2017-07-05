@@ -56,20 +56,28 @@ module.exports = function (options) {
         var senecaHere = this // Must be declared here for prior action.
         runBeforeTrigger(aTrigger, msg)
         .then(function (beforeResult) {
-          runPrior(senecaHere, msg)
-          .then(function (priorResult) {
-            runAfterTrigger(aTrigger, msg, priorResult)
+          // Checks if before-trigger successes
+          if (beforeResult.success) {
+            runPrior(senecaHere, msg)
             .then(function (priorResult) {
-              if (beforeResult) {
-                // Adds the before-result to the prior result
-                addResults(aTrigger, beforeResult, null, priorResult)
-              }
-              // Final response
-              reply(null, priorResult)
+              runAfterTrigger(aTrigger, msg, priorResult)
+              .then(function (priorResult) {
+                if (beforeResult) {
+                  // Adds the before-result to the prior result
+                  addResults(aTrigger, beforeResult, null, priorResult)
+                }
+                // Final response
+                reply(null, priorResult)
+              })
+              .catch(function (err) { reply(err) })
             })
             .catch(function (err) { reply(err) })
-          })
-          .catch(function (err) { reply(err) })
+          } else {
+            // Before-trigger unsuccess
+            // Adds the trigger to the result before reply
+            beforeResult.trigger = aTrigger.before
+            reply(null, beforeResult)
+          }
         })
         .catch(function (err) { reply(err) })
       })
@@ -84,6 +92,10 @@ module.exports = function (options) {
         // Fires the before-trigger
         execTrigger(aTrigger.before, msg)
         .then(function (beforeResult) {
+          // Checks if the result success property exists. Default = true.
+          if (!beforeResult.hasOwnProperty('success')) {
+            beforeResult.success = true
+          }
           // Adds the before-result to the prior message
           // This result could be retrieved by the prior action
           addResults(aTrigger, beforeResult, null, msg)
@@ -92,7 +104,7 @@ module.exports = function (options) {
         .catch(function (err) { return reject(err) })
       } else {
         // No before-trigger
-        return resolve(null)
+        return resolve({success: true})
       }
     })
   }
