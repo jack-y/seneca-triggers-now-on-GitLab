@@ -45,6 +45,7 @@ module.exports = function (options) {
         return done(null, {success: true, results: results})
       })
     }
+    // No trigger: nothing to do
     done(null, {success: true})
   }
 
@@ -53,19 +54,22 @@ module.exports = function (options) {
     return new Promise(function (resolve, reject) {
       // Overrides the prior pattern
       seneca.add(aTrigger.pattern, function (msg, reply) {
-        var senecaHere = this // Must be declared here for prior action.
+        var senecaHere = this // Must be set here for prior action
+        // Runs the BEFORE trigger
         runBeforeTrigger(aTrigger, msg)
         .then(function (beforeResult) {
-          // Checks if before-trigger succeed
+          // Checks if the before-trigger succeed
           if (beforeResult.success) {
+            // Runs the PRIOR action
             runPrior(senecaHere, msg)
             .then(function (priorResult) {
               // Adds the before-result to the prior result
               if (beforeResult) {
                 addResults(aTrigger, beforeResult, null, priorResult)
               }
-              // Checks if prior action succeed
+              // Checks if the prior action succeed
               if (priorResult.success) {
+                // Runs the AFTER trigger
                 runAfterTrigger(aTrigger, msg, priorResult)
                 .then(function (priorResult) {
                   // Final response
@@ -73,7 +77,7 @@ module.exports = function (options) {
                 })
                 .catch(function (err) { reply(err) })
               } else {
-                // prior action unsucceed
+                // Prior action unsucceed
                 reply(null, priorResult)
               }
             })
@@ -98,10 +102,8 @@ module.exports = function (options) {
         // Fires the before-trigger
         execTrigger(aTrigger.before, msg)
         .then(function (beforeResult) {
-          // Checks if the result success property exists. Default = true.
-          if (!beforeResult.hasOwnProperty('success')) {
-            beforeResult.success = true
-          }
+          // The result must contain the success property
+          setDefaultSuccess(beforeResult)
           // Adds the before-result to the prior message
           // This result could be retrieved by the prior action
           addResults(aTrigger, beforeResult, null, msg)
@@ -120,10 +122,8 @@ module.exports = function (options) {
     return new Promise(function (resolve, reject) {
       senecaHere.prior(msg, function (err, result) {
         if (err) { return reject(err) }
-        // Checks if the result success property exists. Default = true.
-        if (!result.hasOwnProperty('success')) {
-          result.success = true
-        }
+        // The result must contain the success property
+        setDefaultSuccess(result)
         return resolve(result)
       })
     })
@@ -152,6 +152,7 @@ module.exports = function (options) {
     })
   }
 
+  /* Executes a trigger action */
   function execTrigger (aTriggerObject, msg) {
     return new Promise(function (resolve, reject) {
       // Adds trigger options to the message data
@@ -166,6 +167,7 @@ module.exports = function (options) {
     })
   }
 
+  /* Adds the triggers results to the end result */
   function addResults (aTrigger, resultBefore, resultAfter, result) {
     if (aTrigger.before && aTrigger.before.resultname && resultBefore && result) {
       result[aTrigger.before.resultname] = resultBefore
@@ -175,7 +177,16 @@ module.exports = function (options) {
     }
   }
 
-  /* plugin ends */
+  /* Set the default success property if no yet set */
+  function setDefaultSuccess (object) {
+    // Checks if the success property exists
+    if (!object.hasOwnProperty('success')) {
+      // Sets the default success property
+      object.success = true
+    }
+  }
+
+  /* Plugin ends */
   return {
     name: pluginName
   }
