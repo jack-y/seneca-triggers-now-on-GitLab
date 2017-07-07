@@ -3,7 +3,7 @@
 
 # seneca-triggers
 
-Last update: 07/05/2017
+Last update: 07/07/2017
 
 ## Description
 
@@ -24,12 +24,12 @@ All the logic of the triggers is included in this plugin. Just set it up.
 
 ### Process control
 
-**The *before* action** must succeed, otherwise **the process is stopped**. The prior action is not fired and the *before* action result is returned. With this feature you can:
+1. **The *before* action** must succeed, otherwise **the process is stopped**. The prior action is not fired and the *before* action result is returned. With this feature you can:
 
 - prevent invalid transactions
 - enforce complex security authorizations
 
-**The prior action** must succeed, otherwise the **process is stopped**. The optional *after* trigger is not fired. The prior action result is returned.
+2. **The prior action** must succeed, otherwise the **process is stopped**. The optional *after* trigger is not fired. The prior action result is returned.
 
 ### Retrieving results
 
@@ -321,19 +321,21 @@ If the *before* trigger is set, the end result changes:
 
 ## Run the tests
 
-The `test` directory contains the full *hello World* sources. The 4 scenarios can be tested:
+The `test` directory contains the full *hello World* sources. The 6 scenarios can be tested:
 
 - no trigger
 - *before* trigger only
+- *before* trigger with bad result
 - *after* trigger only
 - *before* and *after* triggers
+- *before* and *after* triggers with prior bad result
 
 The outputs can be checked [here][].
 
 To run these tests:
 
 ```sh
-node ./test/test-notrigger.js && node ./test/test-before.js && node ./test/test-after.js && node ./test/test-before-after.js
+npm test
 ```
 
 # Install
@@ -346,11 +348,10 @@ npm install seneca-triggers
 
 # Test
 
-The `test` directory contains the full *helloWorld* sources.
-To run these tests:
+To run tests, simply use npm:
 
 ```sh
-node ./test/test-notrigger.js && node ./test/test-before.js && node ./test/test-after.js && node ./test/test-before-after.js
+npm test
 ```
 
 # Contributing

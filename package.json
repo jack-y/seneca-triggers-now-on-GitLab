@@ -1,6 +1,6 @@
 {
   "name": "seneca-triggers",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Triggers on seneca actions",
   "keywords": [
     "node.js",
@@ -13,6 +13,8 @@
     "bluebird": "3.4.x"
   },
   "devDependencies": {
+    "code": "4.1.x",
+    "lab": "14.1.x",
     "seneca": "3.x"
   },
   "url": "https://github.com/jack-y/seneca-triggers",
@@ -32,6 +34,6 @@
     "url": "https://github.com/jack-y/seneca-triggers"
   },
   "scripts": {
-    "test": "node ./test/test-notrigger.js && node ./test/test-before.js && node ./test/test-after.js && node ./test/test-before-after.js"
+    "test": "lab -v -P test"
   }
 }

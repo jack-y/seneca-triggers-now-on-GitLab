@@ -3,13 +3,13 @@
 
 # seneca-triggers: Hello World tests
 
-Last update: 07/03/2017
+Last update: 07/07/2017
 
 ## Run the tests
 
 1. Open a command prompt
-1. Go to this tests directory
-1. Run `node test-notrigger.js && node test-before.js && node test-after.js && node test-before-after.js`
+1. Go to the plugin directory
+1. Run `npm test`
 
 ## Checking the results
 
@@ -17,9 +17,8 @@ Last update: 07/03/2017
 
 The console shows:
 
-	Triggers: test no trigger ----------------------
+	-- No trigger --------------------
 	Hello World!
-	Test OK. result = {"msg":"Hello World!"}
 
 This is the normal `helloWorld` action output.
 
@@ -27,10 +26,9 @@ This is the normal `helloWorld` action output.
 
 The console shows:
 
-	Triggers: test before ----------------------
+	-- Before --------------------
 	> First of all, my name is Jack.
 	Hello Jack!
-	Test OK. result = {"msg":"Hello Jack!","Set name":{"name":"Jack"}}
 
 Before calling the `helloWorld` action, the *before* trigger is fired.
 It outputs a message with a name from the configuration options.
@@ -40,15 +38,26 @@ The `helloWorld` output is changed accordingly.
 
 The end result contains a new value: the name.
 
+### *Before* trigger with bad result
+
+The console shows:
+
+	-- Before with bad result--------------------
+	> Something is rotten in this function :(
+
+Before calling the `helloWorld` action, the *before* trigger is fired.
+The override process is stopped because of the bad result of the trigger.
+
+The end result is the *before* result.
+
 ### *After* trigger only
 
 The console shows:
 
-	Triggers: test after ----------------------
+	-- After --------------------
 	Hello World!
 	# You said: "Hello World!".
 	# How are you?
-	Test OK. result = {"msg":"Hello World!"}
 
 After calling the `helloWorld` action, the *after* trigger is fired.
 It retrieves the result of the prior `helloWorld` action.
@@ -60,12 +69,11 @@ The end result remains unchanged.
 
 The console shows:
 
-	Triggers: test before and after ----------------------
+	-- Before & after --------------------
 	> First of all, my name is Jack.
 	Hello Jack!
 	# You said: "Hello Jack!".
 	# How are you?
-	Test OK. result = {"msg":"Hello Jack!","Set name":{"name":"Jack"}}
 
 Before calling the `helloWorld` action, the *before* trigger is fired.
 It outputs a message with a name from the configuration options.
@@ -78,6 +86,22 @@ It retrieves the result of the prior `helloWorld` action.
 It outputs a message accordingly.
 
 The end result contains a new value: the name.
+
+### *Before* and *after* triggers with bad prior
+
+The console shows:
+
+	-- Before & after with bad prior --------------------
+	> First of all, my name is Jack.
+
+Before calling the `helloWorld` action, the *before* trigger is fired.
+It outputs a message with a name from the configuration options.
+
+Calling the bad `helloWorld` action, its result contains `success: false`.
+The override process is stopped.
+The *after* trigger is not fired.
+
+The end result contains the prior bad result.
 
 # Contributing
 The [Senecajs org][] encourages open participation. If you feel you can help in any way, be it with documentation, examples, extra testing, or new features please get in touch.
